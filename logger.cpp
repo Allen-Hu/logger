@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 
 	// run command
 	string cmd = "LD_PRELOAD=" + p + " ";
-	for(int i = sep + 1; i < args.size(); i++)
+	for(int i = sep + 1; i < (int)args.size(); i++)
 		cmd += (args[i] + " ");
 
 	system(cmd.c_str());

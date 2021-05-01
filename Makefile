@@ -5,10 +5,12 @@ CPPFLAGS = -Wall -g
 
 all: hw2 logger
 
-hw2: hw2.cpp
+logger.so: hw2.cpp
+	$(CPP) $(CPPFLAGS) -c -fPIC $< -o $@
 
 logger: logger.cpp
 	$(CPP) $(CPPFLAGS) $< -o $@
 
 clean:
-	rm logger
+	rm -f logger
+	rm -f logger.so
