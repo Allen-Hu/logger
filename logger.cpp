@@ -51,6 +51,9 @@ int main(int argc, char** argv)
 	string cmd = "LD_PRELOAD=" + p + " ";
 	for(int i = sep + 1; i < (int)args.size(); i++)
 		cmd += (args[i] + " ");
+	
+	if(!o.empty())
+		cmd += ("2>" + o);
 
 	system(cmd.c_str());
 	return 0;

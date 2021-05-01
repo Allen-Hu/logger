@@ -1,12 +1,12 @@
 .PHONY: clean
 
 CPP = g++
-CPPFLAGS = -Wall -g
+CPPFLAGS = -Wall -g -std=c++11
 
-all: hw2 logger
+all: logger logger.so
 
 logger.so: hw2.cpp
-	$(CPP) $(CPPFLAGS) -shared -fPIC $< -o $@ -ldl
+	$(CPP) $(CPPFLAGS) -shared -fPIC $< -o $@
 
 logger: logger.cpp
 	$(CPP) $(CPPFLAGS) $< -o $@
