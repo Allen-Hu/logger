@@ -6,7 +6,7 @@ CPPFLAGS = -Wall -g -std=c++11
 all: logger logger.so
 
 logger.so: hw2.cpp
-	$(CPP) $(CPPFLAGS) -shared -fPIC $< -o $@
+	$(CPP) $(CPPFLAGS) -shared -fPIC $< -o $@ -ldl
 
 logger: logger.cpp
 	$(CPP) $(CPPFLAGS) $< -o $@
