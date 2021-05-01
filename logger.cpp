@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <map>
 using namespace std;
 
 void print_usage()
@@ -13,6 +12,7 @@ void print_usage()
 
 int main(int argc, char** argv)
 {
+	// args parsing
 	vector<string> args;
 	int sep = -1;
 	for(int i = 1; i < argc; i++)
@@ -24,23 +24,34 @@ int main(int argc, char** argv)
 	}
 
 	bool valid = true;
-	map<string, string> opts;
+	string o;
+	string p = "./logger.so";
 	if(sep != -1)
 	{
 		for(int i = 0; i < sep; i+=2)
 		{
-			if(args[i] != "-o" && args[i] != "-p")
+			if(args[i] == "-o")
+				o = args[i+1];
+			else if(args[i] != "-p")
+				p = args[i+1];
+			else
 			{
 				valid = false;
 				break;
 			}
-			opts.insert(make_pair(args[i], args[i+1]));
 		}
 	}
 	if(!valid)
 	{
 		print_usage();
-		exit(0);
+		return 0;
 	}
+
+	// run command
+	string cmd = "LD_PRELOAD=" + p + " ";
+	for(int i = sep + 1; i < args.size(); i++)
+		cmd += (args[i] + " ");
+
+	system(cmd.c_str());
 	return 0;
 }
