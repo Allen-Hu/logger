@@ -14,6 +14,8 @@
 
 using namespace std;
 
+bool LOGGING = false;
+
 string BRAC(string s)
 {
 	return "\"" + s + "\"";
@@ -99,6 +101,8 @@ string POINT(T* p)
 
 void log(string name, vector<string> args, string ret)
 {
+	if(LOGGING) return;
+	LOGGING = true;
 	fprintf(stderr, "[logger] %s(", name.c_str());
     for(auto &arg: args)
     {
@@ -107,12 +111,13 @@ void log(string name, vector<string> args, string ret)
 		fprintf(stderr, "%s", arg.c_str());
     }
 	fprintf(stderr, ") = %s\n", ret.c_str());
+	LOGGING = false;
 }
 
 int chmod(const char *path, mode_t mode)
 {
     typedef int (*fp)(const char*, mode_t);
-    fp func = (fp)dlsym(RTLD_NEXT,"chmod");
+    fp func = (fp)dlsym(RTLD_NEXT, "chmod");
     int ret = func(path, mode);
     log("chmod", {PATH(path), MODE(mode)}, INT(ret));
 	return ret;
@@ -121,7 +126,7 @@ int chmod(const char *path, mode_t mode)
 int chown(const char *path, uid_t owner, gid_t group)
 {
     typedef int (*fp)(const char*, uid_t, gid_t);
-    fp func = (fp)dlsym(RTLD_NEXT,"chown");
+    fp func = (fp)dlsym(RTLD_NEXT, "chown");
 	int ret = func(path, owner, group);
 	log("chown", {PATH(path), INT(owner), INT(group)}, INT(ret));
 	return ret;
@@ -131,7 +136,7 @@ int close(int fildes)
 {
 	string sfd = FD(fildes);
     typedef int (*fp)(int);
-    fp func = (fp)dlsym(RTLD_NEXT,"close");
+    fp func = (fp)dlsym(RTLD_NEXT, "close");
 	int ret = func(fildes);
 	log("close", {sfd}, INT(ret));
 	return ret;
@@ -140,7 +145,7 @@ int close(int fildes)
 int creat(const char *path, mode_t mode)
 {
     typedef int (*fp)(const char*, mode_t);
-    fp func = (fp)dlsym(RTLD_NEXT,"creat");
+    fp func = (fp)dlsym(RTLD_NEXT, "creat");
 	int ret = func(path, mode);
 	log("creat", {PATH(path), MODE(mode)}, INT(ret));
 	return ret;
@@ -150,7 +155,7 @@ int fclose(FILE *stream)
 {
 	string sfd = FD(stream);
     typedef int (*fp)(FILE*);
-    fp func = (fp)dlsym(RTLD_NEXT,"fclose");
+    fp func = (fp)dlsym(RTLD_NEXT, "fclose");
 	int ret = func(stream);
 	log("fclose", {sfd}, INT(ret));
 	return ret;
@@ -159,7 +164,7 @@ int fclose(FILE *stream)
 FILE *fopen(const char *path, const char *mode)
 {
     typedef FILE* (*fp)(const char*, const char*);
-    fp func = (fp)dlsym(RTLD_NEXT,"fopen");
+    fp func = (fp)dlsym(RTLD_NEXT, "fopen");
 	FILE* ret = func(path, mode);
 	log("fopen", {PATH(path), BRAC(mode)}, POINT(ret));
 	return ret;
@@ -169,8 +174,74 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
 	string sfd = FD(stream);
     typedef size_t (*fp)(void*, size_t, size_t, FILE*);
-    fp func = (fp)dlsym(RTLD_NEXT,"fread");
+    fp func = (fp)dlsym(RTLD_NEXT, "fread");
 	size_t ret = func(ptr, size, nmemb, stream);
 	log("fread", {BUF(ptr), INT(size), INT(nmemb), sfd}, INT(ret));
+	return ret;
+}
+
+size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
+	string sfd = FD(stream);
+    typedef size_t (*fp)(const void*, size_t, size_t, FILE*);
+    fp func = (fp)dlsym(RTLD_NEXT, "fwrite");
+	size_t ret = func(ptr, size, nmemb, stream);
+	log("fwrite", {BUF(ptr), INT(size), INT(nmemb), sfd}, INT(ret));
+	return ret;
+}
+
+int open(const char *path, int oflag)
+{
+    typedef int (*fp)(const char*, int);
+    fp func = (fp)dlsym(RTLD_NEXT, "open");
+	int ret = func(path, oflag);
+	log("open", {PATH(path), MODE(oflag)}, INT(ret));
+	return ret;
+}
+
+ssize_t read(int fildes, void *buf, size_t nbyte)
+{
+	string sfd = FD(fildes);
+    typedef ssize_t (*fp)(int, void*, size_t);
+    fp func = (fp)dlsym(RTLD_NEXT, "read");
+	ssize_t ret = func(fildes, buf, nbyte);
+	log("read", {sfd, BUF(buf), INT(nbyte)}, INT(ret));
+	return ret;
+}
+
+int remove(const char *pathname)
+{
+    typedef int (*fp)(const char*);
+    fp func = (fp)dlsym(RTLD_NEXT, "remove");
+	int ret = func(pathname);
+	log("remove", {PATH(pathname)}, INT(ret));
+	return ret;
+}
+
+int rename(const char *o, const char *n)
+{
+    typedef int (*fp)(const char*, const char*);
+    fp func = (fp)dlsym(RTLD_NEXT, "rename");
+	int ret = func(o, n);
+	log("rename", {BRAC(o), BRAC(n)}, INT(ret));
+	return ret;
+}
+
+FILE *tmpfile(void)
+{
+    typedef FILE* (*fp)(void);
+    fp func = (fp)dlsym(RTLD_NEXT, "tmpfile");
+	FILE* ret = func();
+	log("tmpfile", {}, POINT(ret));
+	return ret;
+}
+
+ssize_t write(int fildes, const void *buf, size_t nbyte)
+{
+	string sfd = FD(fildes);
+    typedef ssize_t (*fp)(int, const void*, size_t);
+    fp func = (fp)dlsym(RTLD_NEXT, "write");
+	ssize_t ret = func(fildes, buf, nbyte);
+	log("write", {sfd, BUF(buf), INT(nbyte)}, INT(ret));
 	return ret;
 }
