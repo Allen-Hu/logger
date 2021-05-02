@@ -158,7 +158,6 @@ int fclose(FILE *stream)
 
 FILE *fopen(const char *path, const char *mode)
 {
-	return NULL;
     typedef FILE* (*fp)(const char*, const char*);
     fp func = (fp)dlsym(RTLD_NEXT,"fopen");
 	FILE* ret = func(path, mode);
