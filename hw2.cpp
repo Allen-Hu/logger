@@ -179,6 +179,15 @@ int creat(const char *path, mode_t mode)
 	return ret;
 }
 
+int creat64(const char *path, mode_t mode)
+{
+    typedef int (*fp)(const char*, mode_t);
+    fp func = (fp)dlsym(RTLD_NEXT, "creat64");
+	int ret = func(path, mode);
+	log("creat64", {PATH(path), MODE(mode)}, INT(ret));
+	return ret;
+}
+
 int fclose(FILE *stream)
 {
 	string sfd = FD(stream);
@@ -195,6 +204,15 @@ FILE *fopen(const char *path, const char *mode)
     fp func = (fp)dlsym(RTLD_NEXT, "fopen");
 	FILE* ret = func(path, mode);
 	log("fopen", {PATH(path), BRAC(mode)}, POINT(ret));
+	return ret;
+}
+
+FILE *fopen64(const char *path, const char *mode)
+{
+    typedef FILE* (*fp)(const char*, const char*);
+    fp func = (fp)dlsym(RTLD_NEXT, "fopen64");
+	FILE* ret = func(path, mode);
+	log("fopen64", {PATH(path), BRAC(mode)}, POINT(ret));
 	return ret;
 }
 
@@ -224,6 +242,15 @@ int open(const char *path, int oflag)
     fp func = (fp)dlsym(RTLD_NEXT, "open");
 	int ret = func(path, oflag);
 	log("open", {PATH(path), MODE(oflag)}, INT(ret));
+	return ret;
+}
+
+int open64(const char *path, int oflag)
+{
+    typedef int (*fp)(const char*, int);
+    fp func = (fp)dlsym(RTLD_NEXT, "open64");
+	int ret = func(path, oflag);
+	log("open64", {PATH(path), MODE(oflag)}, INT(ret));
 	return ret;
 }
 
@@ -261,6 +288,15 @@ FILE *tmpfile(void)
     fp func = (fp)dlsym(RTLD_NEXT, "tmpfile");
 	FILE* ret = func();
 	log("tmpfile", {}, POINT(ret));
+	return ret;
+}
+
+FILE *tmpfile64(void)
+{
+    typedef FILE* (*fp)(void);
+    fp func = (fp)dlsym(RTLD_NEXT, "tmpfile64");
+	FILE* ret = func();
+	log("tmpfile64", {}, POINT(ret));
 	return ret;
 }
 

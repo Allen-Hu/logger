@@ -2,6 +2,7 @@
 
 CPP = g++
 CPPFLAGS = -Wall -g -std=c++11
+ZIPNAME = 0713407_hw2.zip
 
 all: logger logger.so
 
@@ -14,6 +15,7 @@ logger: logger.cpp
 clean:
 	rm -f logger
 	rm -f logger.so
+	rm -f $(ZIPNAME)
 
 pack: clean
-	zip -r 0713407_hw2.zip . -x ".git*" -x ".DS_Store"
+	zip -r $(ZIPNAME) . -x ".git*" -x ".DS_Store"
