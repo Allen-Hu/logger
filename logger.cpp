@@ -58,6 +58,7 @@ int main(int argc, char** argv)
 		char buf[256];
 		realpath(o.c_str(), buf);
 		cmd += ("LOGGER_OUT=" + o + " ");
+		system((string("rm -f ") + o).c_str());
 		system((string("touch ") + o).c_str());
 	}
 

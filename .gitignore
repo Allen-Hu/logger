@@ -1,5 +1,5 @@
 logger.so
 logger
-
 t.cpp
 t
+*.txt

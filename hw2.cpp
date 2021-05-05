@@ -14,10 +14,6 @@
 
 using namespace std;
 
-bool LOGGER_OUT_SET = true;
-int logger_out_file;
-int cc = 0;
-
 string BRAC(string s)
 {
 	return "\"" + s + "\"";
@@ -104,28 +100,22 @@ string POINT(T* p)
 void log(string name, vector<string> args, string ret)
 {
 	int f = 2;
-	// no file pointer
-	if(logger_out_file)
-		f = logger_out_file;
-	else
+	char* out = getenv("LOGGER_OUT");
+	if(out)
 	{
-		// LOGGER_OUT may be set, try it
-		if(LOGGER_OUT_SET)
-		{
-			char* out = getenv("LOGGER_OUT");
-			if(out)
-			{
-				typedef int (*open_t)(const char*, int);
-				open_t myopen = (open_t)dlsym(RTLD_NEXT, "open");
-				logger_out_file = myopen(out, O_WRONLY | O_CREAT);
-				f = logger_out_file;
-			}
-			else
-				LOGGER_OUT_SET = false;
-		}
+		typedef int (*open_t)(const char*, int);
+		open_t myopen = (open_t)dlsym(RTLD_NEXT, "open");
+		f = myopen(out, O_WRONLY | O_APPEND);
 	}
 
+    typedef ssize_t (*write_t)(int, const void*, size_t);
+    write_t mywrite = (write_t)dlsym(RTLD_NEXT, "write");
+
+    typedef int (*close_t)(int);
+    close_t myclose = (close_t)dlsym(RTLD_NEXT, "close");
+
 	stringstream ss;
+	//ss << "[logger - " << cc++ << "] " << name << "(";
 	ss << "[logger] " << name << "(";
     for(auto &arg: args)
     {
@@ -135,22 +125,21 @@ void log(string name, vector<string> args, string ret)
     }
 	ss << ") = " << ret << endl;
 
-    typedef ssize_t (*write_type)(int, const void*, size_t);
-    write_type mywrite = (write_type)dlsym(RTLD_NEXT, "write");
 	ssize_t mywrite_ret = mywrite(f, ss.str().c_str(), ss.str().size());
 	if(mywrite_ret == -1)
 	{
+		printf("ERROR: %d\n", errno);
 		exit(1);
 	}
-	/*
-    typedef int (*close_type)(int);
-    close_type myclose = (close_type)dlsym(RTLD_NEXT, "close");
-	int myclose_ret = myclose(f);
-	if(myclose_ret == -1)
+
+	int myclose_ret = 0;
+	if(f != 2)
+		myclose_ret = myclose(f);
+	if(myclose_ret != 0)
 	{
+		printf("ERROR: %d\n", errno);
 		exit(1);
 	}
-	*/
 }
 
 int chmod(const char *path, mode_t mode)
